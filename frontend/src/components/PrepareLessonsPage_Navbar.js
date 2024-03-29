@@ -10,17 +10,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import BackToHomeIcon from '../assets/返回首頁icon.png';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import IdeaIcon from '../assets/IdeaIcon.png';
-import QuestionIcon from '../assets/QuestionIcon.png';
-import InformationIcon from '../assets/InformationIcon.png';
-import FlaskIcon from '../assets/FlaskIcon.png';
-import NoteIcon from '../assets/NoteIcon.png';
-import CreateForumIcon from '../assets/CreateForumIcon.png';
-import TaskMapIcon from '../assets/TaskMapIcon.png';
-import LearningFeedbackIcon from '../assets/LearningFeedbackIcon.png';
 import ForumIcon from '../assets/返回論壇icon.png';
-import CommunityIcon from '../assets/CommunityIcon.png';
-import AnnouncementIcon from '../assets/AnnouncementIcon.png';
+import ActivityGroupingIcon from '../assets/group.svg';
+import EditIcon from '../assets/edit.svg';
 import { CreateIdea } from './CreateIdea';
 import { CreateQuestion } from './CreateQuestion';
 import { CreateInformation } from './CreateInformation';
@@ -97,21 +89,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 const menuItems = [
-  { text: '新增想法', modalKey: 'createIdea', icon: IdeaIcon },
-  { text: '新增提問', modalKey: 'createQuestion', icon: QuestionIcon },
-  { text: '新增資訊', modalKey: 'createInformation', icon: InformationIcon },
-  { text: '新增實驗', modalKey: 'createFlask', icon: FlaskIcon },
-  { text: '新增紀錄', modalKey: 'createNote', icon: NoteIcon },
-  // { text: '新增想法牆', modalKey: 'createForum', icon: CreateForumIcon },
-  // { text: '任務地圖', modalKey: 'createTaskMap', icon: TaskMapIcon },
-  { text: '學習歷程', modalKey: 'createLearningFeedback', icon: LearningFeedbackIcon },
-  { text: '討論區', modalKey: 'backToForum', icon: ForumIcon },
+  { text: '學生分組', modalKey: 'activityGrouping', icon: ActivityGroupingIcon },
+  { text: '編輯活動資訊', modalKey: 'editInformationOfActivity', icon: EditIcon },
 ];
-
-// const specialItems = ['新增想法牆','任務地圖', '學習歷程', '討論區'];
-const specialItems = ['新增紀錄', '學習歷程', '討論區'];
-
-
 
 export default function PrepareLessonsPage_Navbar() {
   const navigate = useNavigate();
@@ -186,14 +166,14 @@ export default function PrepareLessonsPage_Navbar() {
                 </IconButton>
               </Tooltip>
             <Typography variant="h6" noWrap component="div"  color="black" fontWeight="bolder">
-              備課區
+              派發活動任務
             </Typography>
             <Box sx={{ flexGrow: 1 }} />
-            <div className='nav-buttons'>
+            {/* <div className='nav-buttons'>
                 <button className='create-activity-button' style={{ marginTop: '20px' }}>
                   <CreateActivityForm/>
                 </button>
-            </div>
+            </div> */}
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -230,48 +210,21 @@ export default function PrepareLessonsPage_Navbar() {
                   </ListItemButton>
                 </Tooltip>
               </ListItem>
-              {specialItems.includes(menuItem.text) && index < menuItems.length - 2 && (
-                <Divider />
-              )}
             </div>
           ))}
         </List>
       </Drawer>
-      {selectedModal === 'createIdea' && (
+      {selectedModal === 'activityGrouping' && (
         <CreateIdea
           open={openModal}
           onClose={closeModal}
         />
       )}
-      {selectedModal === 'createQuestion' && (
+      {selectedModal === 'editInformationOfActivity' && (
         <CreateQuestion
           open={openModal}
           onClose={closeModal}
         />
-      )}
-      {selectedModal === 'createInformation' && (
-        <CreateInformation
-          open={openModal}
-          onClose={closeModal}
-        />
-      )}
-      {selectedModal === 'createFlask' && (
-        <CreateFlask
-          open={openModal}
-          onClose={closeModal}
-        />
-      )}
-      {selectedModal === 'createNote' && (
-        <CreateNote
-          open={openModal}
-          onClose={closeModal}
-        />
-      )}
-      {selectedModal === 'createLearningFeedback' && (
-        navigate("/dashboard")
-      )}
-      {selectedModal === 'backToForum' && (
-        navigate("/forum")
       )}
     </nav>
   );

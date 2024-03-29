@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
+<<<<<<< HEAD
 // import { useHistory } from "react-router-dom";
+=======
+>>>>>>> 8713e2ed7162468173b3956d7b4185ac6e329614
 import config from '../config.json';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -132,7 +135,10 @@ const specialItems = ['新增實驗', '新增紀錄', '學習歷程'];
 
 export default function ForumPage_Navbar() {
   const navigate = useNavigate();
+<<<<<<< HEAD
   // const history = useHistory();
+=======
+>>>>>>> 8713e2ed7162468173b3956d7b4185ac6e329614
   const [activityData, setActivityData] = useState(null);
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -211,6 +217,7 @@ export default function ForumPage_Navbar() {
               }}
             />
           </IconButton>
+<<<<<<< HEAD
           <Tooltip title="返回首頁" arrow>
             <IconButton
               size="large"
@@ -239,9 +246,28 @@ export default function ForumPage_Navbar() {
           >
             {activityData && ( // ensure that activityData is not null or undefined before trying to access its properties.
               <>{activityData.title}</>
+=======
+          <Tooltip title='返回首頁' arrow>
+              <IconButton
+                size="large"
+                aria-label="show 4 new mails"
+                color="inherit"
+                onClick={() => navigate(-1)}
+              >
+                <Badge color="error">
+                  <img alt='返回首頁' src={BackToHomeIcon} width={24} height={24} />
+                </Badge>
+              </IconButton>
+          </Tooltip>
+          <Typography variant="h6" noWrap component="div"  color="black" fontWeight="bolder">
+            {activityData && (    // ensure that activityData is not null or undefined before trying to access its properties.
+              <>
+                {activityData.title}
+              </>
+>>>>>>> 8713e2ed7162468173b3956d7b4185ac6e329614
             )}
           </Typography>
-          <Box sx={{ flexGrow: 1 }} />
+          {/* <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {/* <Tooltip title='小組聊天室' arrow>
               <IconButton
@@ -271,7 +297,7 @@ export default function ForumPage_Navbar() {
                 </Badge>
               </IconButton>
             </Tooltip>
-          </Box>
+          </Box> */}
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>

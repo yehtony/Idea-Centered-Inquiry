@@ -9,42 +9,13 @@ import {
   List,
   ListItem,
 } from '@mui/material';
-import { ThemeProvider, Button } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import { createTheme } from '@mui/material/styles';
 import CommunityIcon from '../assets/CommunityIcon.png';
-// import FaceIcon from '@mui/icons-material/Face';
 import FaceOutlinedIcon from '@mui/icons-material/FaceOutlined';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
-// import { alpha, styled } from '@mui/material/styles';
-import { styled } from '@mui/system';
 
 export const ChatBot = () => {
-  //   const CssTextField = styled(TextField)({
-  //     '& label.Mui-focused': {
-  //       color: 'rgba(255, 255, 255, 0)',
-  //     },
-  //     '& .MuiInput-underline:after': {
-  //       borderBottomColor: 'rgba(255, 255, 255, 0)',
-  //     },
-  //     '& .MuiOutlinedInput-root': {
-  //       '& fieldset': {
-  //         borderColor: 'rgba(255, 255, 255, 0)',
-  //       },
-  //       '&:hover fieldset': {
-  //         borderColor: 'rgba(255, 255, 255, 0)',
-  //       },
-  //       '&.Mui-focused fieldset': {
-  //         borderColor: 'rgba(255, 255, 255, 0)',
-  //       },
-  //     },
-  //   });
-  //   const [messages, setMessages] = useState([]);
-  //   const [inputValue, setInputValue] = useState('');
-  //   const [isChatOpen, setIsChatOpen] = useState(false);
-
-  //
   const [message, setMessage] = useState('');
   const [userLog, setUserLog] = useState({});
   const [messageLog, setMessageLog] = useState([]);
@@ -54,7 +25,7 @@ export const ChatBot = () => {
   const sendMessageToPython = async () => {
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/react/chatbot/collaboration',
+        'http://127.0.0.1:8000/react/chatbot/ideaimprove_step1',
         {
           messages: [{ role: 'user', content: message }],
         }
@@ -83,17 +54,6 @@ export const ChatBot = () => {
     setUserLog(updatedMessageLog);
     setMessageLog(updatedMessageLog);
   };
-  //   const handleSendMessage = () => {
-  //     if (inputValue.trim() !== '') {
-  //       const newMessage = {
-  //         text: inputValue,
-  //         sender: 'user',
-  //       };
-
-  //       setMessages([...messages, newMessage]);
-  //       setInputValue('');
-  //     }
-  //   };
 
   const handleToggleChat = () => {
     setChatBotOpen(!chatbotOpen);
@@ -165,17 +125,6 @@ export const ChatBot = () => {
                   ) : null
                 )}
               </List>
-              {/* {messageLog.map((message, index) => (
-              <div
-                key={index}
-                style={{
-                  marginBottom: '8px',
-                  textAlign: message.sender === 'bot' ? 'left' : 'right',
-                }}
-              >
-                {message.text}
-              </div>
-            ))} */}
             </Box>
             <Box
               sx={{
