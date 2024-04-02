@@ -6,6 +6,7 @@ const Part = require('./part.controller');
 const SubPart = require('./subPart.controller');
 const Node = require('./node.controller');
 const Edge = require('./edge.controller');
+const ChatRoomMessage = require('./chatRoomMessage.controller');
 
 module.exports = {
   User,
@@ -15,5 +16,6 @@ module.exports = {
   Part,
   SubPart,
   Node,
-  Edge
+  Edge,
+  ChatRoomMessage,
 };

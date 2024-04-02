@@ -5,13 +5,13 @@ const db = require('../models');
 // const GroupNode = db.GroupNode;
 const Group = db.Group;
 // const Op = db.Sequelize.Op;
-const ChatRoomMesage = db.ChatRoomMesage;
+const ChatRoomMessage = db.ChatRoomMessage;
 
 // Create and Save new Node.
 exports.create = async (req, res) => {
   const { groupId, author, content } = req.body;
   try {
-    const node = await ChatRoomMesage.create({
+    const node = await ChatRoomMessage.create({
       content: content,
       author: author,
       groupId: groupId,
@@ -21,7 +21,7 @@ exports.create = async (req, res) => {
     //   NodeId: node.id,
     // });
 
-    console.log('Created message:', ChatRoomMesage);
+    console.log('Created message:', ChatRoomMessage);
     res.status(200).send({
       message: 'Message created successfully',
       node: node,
@@ -45,7 +45,7 @@ exports.findAllNode = (req, res) => {
     },
     include: [
       {
-        model: ChatRoomMesage,
+        model: ChatRoomMessage,
         through: { attributes: [] },
       },
     ],

@@ -43,6 +43,10 @@ const io = socketServer(server, {
 // });
 global.onlineUsers = new Map();
 
+/* add by xuan */
+const ChatRoomMessage = require('../models/chatRoomMessage.model');
+/* add by xuan */
+
 io.on('connection', (socket) => {
   // console.log(`⚡: ${socket.id} user just connected!`);
   console.log(socket.connected);
@@ -84,9 +88,15 @@ io.on('connection', (socket) => {
   });
 
   //send chatroom message
-  socket.on('sendChatRoomMessage', (data) => {
+  socket.on('sendChatRoomMessage', async (data) => {
     console.log(data);
-    socket.to(data.room).emit('receiveChatRoomMessage', data);
+    const { content, author, groupId } = data;
+    const creatMessage = await ChatRoomMessage.create({
+      content: content,
+      author: author,
+      groupId: groupId,
+    });
+    io.socket.to(data.room).emit('receiveChatRoomMessage', creatMessage);
   });
   /* add by xuan */
 });
