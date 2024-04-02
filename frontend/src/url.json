@@ -1,7 +1,3 @@
 {
-<<<<<<< HEAD
     "backendHost": "http://localhost:8000/"
-=======
-    "backendHost": "http://140.115.126.195:8000/"
->>>>>>> 8713e2ed7162468173b3956d7b4185ac6e329614
 }
