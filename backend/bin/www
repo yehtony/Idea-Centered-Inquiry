@@ -28,55 +28,68 @@ server.listen(port, console.log(`Backend server is running on port ${port}`));
 server.on('error', onError);
 server.on('listening', onListening);
 
-const io = socketServer(server,{
+const io = socketServer(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
   },
-}
-);
+});
 // io.on("connection", (socket) => {
 //   console.log(`a user connected ${socket.id}`);
-  
+
 //   socket.on("event01", (data) => {
 //     socket.broadcast.emit("event02", data);
 //   });
 // });
 global.onlineUsers = new Map();
 
-io.on("connection", socket => {
+io.on('connection', (socket) => {
   // console.log(`⚡: ${socket.id} user just connected!`);
-  console.log(socket.connected); 
+  console.log(socket.connected);
   global.chatSocket = socket;
 
   socket.on('event01', (msg, callback) => {
     //1
-    console.log("event01", msg);
-    
+    console.log('event01', msg);
+
     //2
     callback({
-      status: "event01 ok"
-    })
+      status: 'event01 ok',
+    });
 
     //3
-    socket.broadcast.emit("event02", "event02 ok", (response) => {
-      console.log("event02 sender status:",response.status); // ok
+    socket.broadcast.emit('event02', 'event02 ok', (response) => {
+      console.log('event02 sender status:', response.status); // ok
     });
   });
 
-  socket.on("add-user", (userId) => {
-    onlineUsers.set(userId, socket.id);
-  })
+  // socket.on('add-user', (userId) => {
+  //   onlineUsers.set(userId, socket.id);
+  // });
 
-  socket.on("create-node", (data) => {
-    const sendUserSocket = onlineUsers.get(data.to);
-    if(sendUserSocket) {
-      socket.to(sendUserSocket).emit("node-recieve", data.msg);
-    }
-  })
+  // socket.on('create-node', (data) => {
+  //   const sendUserSocket = onlineUsers.get(data.to);
+  //   if (sendUserSocket) {
+  //     socket.to(sendUserSocket).emit('node-recieve', data.msg);
+  //   }
+  // });
+
+  /* add by xuan */
+  console.log(`${socket.id} a user connected`);
+
+  //join room
+  socket.on('joinRoom', (data) => {
+    socket.join(data);
+    console.log(`${socket.id} join room ${data}`);
+  });
+
+  //send chatroom message
+  socket.on('sendChatRoomMessage', (data) => {
+    console.log(data);
+    socket.to(data.room).emit('receiveChatRoomMessage', data);
+  });
+  /* add by xuan */
 });
-
-
 
 /**
  * Normalize a port into a number, string, or false.
@@ -107,9 +120,7 @@ function onError(error) {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -132,8 +143,6 @@ function onError(error) {
 
 function onListening() {
   var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
+  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
