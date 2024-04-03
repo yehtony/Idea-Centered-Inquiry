@@ -41,6 +41,7 @@ import { CreateFlask } from './CreateFlask';
 import { CreateNote } from './CreateNote';
 import url from '../url.json';
 import { ChatBot } from './ChatBot';
+import { GroupChatBot } from './GroupChatBot';
 
 const drawerWidth = 240;
 
@@ -228,7 +229,7 @@ export default function ForumPage_Navbar() {
               </>
             )}
           </Typography>
-          {/* <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {/* <Tooltip title='小組聊天室' arrow>
               <IconButton
@@ -241,7 +242,8 @@ export default function ForumPage_Navbar() {
                 </Badge>
               </IconButton>
             </Tooltip> */}
-            <ChatBot />
+            {/* <ChatBot /> */}
+            <GroupChatBot/>
             <Tooltip title="任務公告" arrow>
               <IconButton
                 size="large"
@@ -258,7 +260,7 @@ export default function ForumPage_Navbar() {
                 </Badge>
               </IconButton>
             </Tooltip>
-          {/* </Box> */}
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
