@@ -56,16 +56,33 @@ export const GroupChatBot = () => {
   //     };
   //   }, [messageLog]);
 
+  // Check Message
+  const checkMessage = async () => {
+    console.log(message);
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/message/check", {
+        message: message,
+      });
+      console.log("NLP server response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error sending message to NLP server:", error);
+      return false;
+    }
+  };
+
   const sendMessage = async () => {
     if (message !== "") {
-      const messageData = {
-        content: message,
-        groupId: data.groupId,
-        author: data.author,
-      };
-      socket.emit("sendMessage", messageData);
-      console.log("send message", messageData);
-      setMessageList((prev) => [...prev, messageData]);
+      if ((await checkMessage()) === true) {
+        const messageData = {
+          content: message,
+          groupId: data.groupId,
+          author: data.author,
+        };
+        socket.emit("sendMessage", messageData);
+        console.log("send message", messageData);
+        setMessageList((prev) => [...prev, messageData]);
+      }
     }
   };
 
@@ -81,6 +98,7 @@ export const GroupChatBot = () => {
     socket.on("receiveMessage", receive_message);
     return () => {
       socket.off("receiveMessage", receive_message);
+      // socket.disconnect(); // 斷開socket連接
     };
   }, [socket, chatRoomOpen]);
 
