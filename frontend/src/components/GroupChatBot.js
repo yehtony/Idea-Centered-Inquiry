@@ -9,6 +9,11 @@ import {
   Avatar,
   List,
   ListItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import CommunityIcon from "../assets/CommunityIcon.png";
@@ -27,6 +32,18 @@ export const GroupChatBot = () => {
   // const ws = io.connect(url.backendHost);
   const [message, setMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
+  const [messageAlert, setMessageAlert] = useState("");
+  const [alertMessage, setAlertMessage] = useState([
+    [
+      "你提出的想法似乎含有「冒犯性言論『",
+      "』」，如果可以請修正你的言論，以理性且尊種的方式表達想法喔！",
+    ],
+    [
+      "你提出的想法似乎含有「負面情緒」，建議你修正你的寫法為「",
+      "」，請以積極且正向的方式表達想法喔！",
+    ],
+    ["你提出的想法似乎和討論問題無關，請聚焦於問題並重新思考喔！", ""],
+  ]);
   const [messageListTemp, setMessageListTemp] = useState({
     sender: groupId,
     message: message,
@@ -109,7 +126,11 @@ export const GroupChatBot = () => {
   // Send Personal Message
   const sendMessage = async () => {
     if (message !== "") {
-      if ((await checkMessage()) === true) {
+      const checkMessageResult = await checkMessage();
+      const isAllTrue = checkMessageResult.every(
+        (item) => item.result === false
+      );
+      if (isAllTrue) {
         const messageData = {
           content: message,
           groupId: data.groupId,
@@ -123,7 +144,42 @@ export const GroupChatBot = () => {
           message: prev.message + "\n" + message,
         }));
         setCheckGroupMessage(true);
+      } else {
+        const messageToAlert = await checkMessageResult.reduce(
+          (prev, item, index) => {
+            if (item.result) {
+              return (
+                prev +
+                alertMessage[index][0] +
+                item.content +
+                alertMessage[index][1] +
+                "\n"
+              ); // 如果 result 為 true，則將 content 添加到 messageAlert 中
+            } else {
+              return prev; // 如果 result 為 false，則返回原來的值
+            }
+          },
+          ""
+        );
+        setCheckGroupMessage(false);
+        setMessageAlert(messageToAlert);
+        console.log("send message", messageAlert);
       }
+      // if ((await checkMessage()) === true) {
+      //   const messageData = {
+      //     content: message,
+      //     groupId: data.groupId,
+      //     author: data.author,
+      //   };
+      //   socket.emit("sendMessage", messageData);
+      //   console.log("send message", messageData);
+      //   setMessageList((prev) => [...prev, messageData]);
+      //   setMessageListTemp((prev) => ({
+      //     ...prev,
+      //     message: prev.message + "\n" + message,
+      //   }));
+      //   setCheckGroupMessage(true);
+      // }
     }
   };
 
@@ -143,8 +199,58 @@ export const GroupChatBot = () => {
     };
   }, [socket, chatRoomOpen]);
 
+  // const handleClickOpen = () => {
+  //   setCheckGroupMessage(true);
+  // };
+
+  const doubleCheckYes = () => {
+    setCheckGroupMessage(true);
+    setMessageAlert("");
+    const messageData = {
+      content: message,
+      groupId: data.groupId,
+      author: data.author,
+    };
+    socket.emit("sendMessage", messageData);
+    console.log("send message", messageData);
+    setMessageList((prev) => [...prev, messageData]);
+    setMessageListTemp((prev) => ({
+      ...prev,
+      message: prev.message + "\n" + message,
+    }));
+  };
+  const doubleCheckNo = () => {
+    setCheckGroupMessage(true);
+    setMessageAlert("");
+  };
   return (
     <>
+      <Dialog
+        open={!checkGroupMessage}
+        // onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"是否要提出此想法？"}
+        </DialogTitle>
+        <DialogContent>
+          {messageAlert.split("\n").map((line, index) => (
+            <React.Fragment key={index}>
+              {line}
+              <br />
+            </React.Fragment>
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={doubleCheckNo}>
+            否
+          </Button>
+          <Button variant="contained" onClick={doubleCheckYes} autoFocus>
+            是
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Tooltip title="小組聊天室" arrow>
         <IconButton
           size="large"
@@ -185,7 +291,29 @@ export const GroupChatBot = () => {
               >
                 小組完成回覆
               </Button>
-              <List style={{ height: "calc(100% - 48px)", overflowY: "auto" }}>
+              <List
+                sx={{
+                  height: "calc(100% - 49px)", // 設置高度
+                  overflowY: "auto", // 設置垂直滾動條
+                  /* 滾動條樣式開始 */
+                  "&::-webkit-scrollbar": {
+                    width: "8px", // 滾動條寬度
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "#f1f1f1", // 軌道背景色
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "#888", // 滑塊背景色
+                    borderRadius: "4px",
+                  },
+                  "&::-webkit-scrollbar-thumb:hover": {
+                    background: "#555", // 鼠標懸停時的滑塊背景色
+                  },
+                  /* 滾動條樣式結束 */
+                }}
+              >
+                {/* 這裡是 List 中的內容 */}
+
                 {messageList.map((message, index) => (
                   <ListItem
                     key={index}
