@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Tooltip,
+  Button,
   IconButton,
   Badge,
   Box,
@@ -14,19 +15,28 @@ import CommunityIcon from "../assets/CommunityIcon.png";
 import FaceOutlinedIcon from "@mui/icons-material/FaceOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import TaskAltRoundedIcon from "@mui/icons-material/TaskAltRounded";
 // import io from 'socket.io-client';
 // import url from '../url.json';
 import { socket } from "../utils/Socket";
 
 export const GroupChatBot = () => {
+  const userId = localStorage.getItem("userId");
+  const author = localStorage.getItem("name");
+  const groupId = localStorage.getItem("groupId");
   // const ws = io.connect(url.backendHost);
   const [message, setMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
+  const [messageListTemp, setMessageListTemp] = useState({
+    sender: groupId,
+    message: message,
+  });
+  const [checkGroupMessage, setCheckGroupMessage] = useState(false);
   const [chatRoomOpen, setChatRoomOpen] = useState(false);
   const [data, setData] = useState({
     content: message,
-    author: localStorage.getItem("name"),
-    groupId: localStorage.getItem("groupId"),
+    author: author,
+    groupId: groupId,
   });
 
   // const sendMessageToServer = async (content) => {
@@ -56,7 +66,32 @@ export const GroupChatBot = () => {
   //     };
   //   }, [messageLog]);
 
-  // Check Message
+  // Group Message
+  const sendGroupMessage = async () => {
+    console.log(messageListTemp);
+    if (checkGroupMessage === true) {
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:5005/webhooks/rest/webhook",
+          messageListTemp
+        );
+        console.log("NLP server response:", response.data);
+        const messageData = {
+          content: response.data[0].text,
+          groupId: data.groupId,
+          author: "assistant",
+        };
+        setCheckGroupMessage(false);
+        setMessageList((prev) => [...prev, messageData]);
+        return response.data;
+      } catch (error) {
+        console.error("Error sending message to NLP server:", error);
+        return false;
+      }
+    }
+  };
+
+  // Check Personal Message
   const checkMessage = async () => {
     console.log(message);
     try {
@@ -71,6 +106,7 @@ export const GroupChatBot = () => {
     }
   };
 
+  // Send Personal Message
   const sendMessage = async () => {
     if (message !== "") {
       if ((await checkMessage()) === true) {
@@ -82,6 +118,11 @@ export const GroupChatBot = () => {
         socket.emit("sendMessage", messageData);
         console.log("send message", messageData);
         setMessageList((prev) => [...prev, messageData]);
+        setMessageListTemp((prev) => ({
+          ...prev,
+          message: prev.message + "\n" + message,
+        }));
+        setCheckGroupMessage(true);
       }
     }
   };
@@ -124,26 +165,36 @@ export const GroupChatBot = () => {
               sx={{
                 width: "22vw",
                 height: "75vh",
-                overflowY: "auto",
                 border: "3px solid grey",
                 marginBottom: "10px",
                 borderRadius: 1,
+                textAlign: "center", // 让其子元素水平居中
               }}
             >
-              <List>
+              <Button
+                size="medium"
+                variant="outlined"
+                endIcon={<TaskAltRoundedIcon />}
+                style={{
+                  width: "98%",
+                  marginTop: "1%",
+                  marginBottom: "1%",
+                  border: "3px solid",
+                }}
+                onClick={sendGroupMessage}
+              >
+                小組完成回覆
+              </Button>
+              <List style={{ height: "calc(100% - 48px)", overflowY: "auto" }}>
                 {messageList.map((message, index) => (
                   <ListItem
                     key={index}
                     style={{
                       justifyContent:
-                        message.userId === data.userId
-                          ? "flex-end"
-                          : "flex-start",
+                        message.author === author ? "flex-end" : "flex-start",
                       flexDirection: "column",
                       alignItems:
-                        message.userId === data.userId
-                          ? "flex-end"
-                          : "flex-start",
+                        message.author === author ? "flex-end" : "flex-start",
                       color: "black",
                     }}
                   >
@@ -154,13 +205,24 @@ export const GroupChatBot = () => {
                         backgroundColor: "transparent",
                       }}
                     >
-                      {message.userId === "assistant" ? (
+                      {message.author === "assistant" ? (
                         <SmartToyOutlinedIcon />
                       ) : (
                         <FaceOutlinedIcon />
                       )}
                     </Avatar>
-                    <div>{message.content}</div>
+                    <div
+                      style={{
+                        backgroundColor:
+                          message.author === "assistant"
+                            ? "lightblue"
+                            : "white",
+                        borderRadius: "6px",
+                        padding: "6px",
+                      }}
+                    >
+                      {message.content}
+                    </div>
                   </ListItem>
                 ))}
               </List>

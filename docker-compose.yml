@@ -12,23 +12,23 @@ services:
     volumes:
       - "./uploads:/app/uploads/"
     ports:
-        - "8000:8000"
+      - "8000:8000"
     depends_on:
-        - db
+      - db
 
   db:
     image: postgres:13.2-alpine
     restart: always
     environment:
-      POSTGRES_DB: Idea-centered-inquiry #<DB_TABLENAME> 
-      POSTGRES_USER: wulab #<USERNAME> 
-      POSTGRES_PASSWORD: ytwu35415 #<USERPSW> 
+      POSTGRES_DB: Idea-centered-inquiry #<DB_TABLENAME>
+      POSTGRES_USER: wulab #<USERNAME>
+      POSTGRES_PASSWORD: ytwu35415 #<USERPSW>
       PGDATA: /var/lib/postgresql/data
 
     volumes:
       - "./db_data:/var/lib/postgresql/data"
     ports:
-        - "5432:5432"
+      - "5432:5432"
 
   pgadmin:
     image: dpage/pgadmin4:7.5
@@ -45,10 +45,10 @@ services:
       - "./pgadmin_data:/var/lib/pgadmin"
 
   frontend:
-    build: 
+    build:
       context: frontend
     ports:
-      - '80:3000'
+      - 3000:3000'
     stdin_open: true
     restart: always
     volumes:
@@ -60,8 +60,8 @@ services:
       - backend
 
 volumes:
-    db_data:
-    pgadmin_data:
+  db_data:
+  pgadmin_data:
 
 networks:
   frontend:
