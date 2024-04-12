@@ -31,7 +31,14 @@ export const GroupChatBot = () => {
   const groupId = localStorage.getItem('groupId');
   // const ws = io.connect(url.backendHost);
   const [message, setMessage] = useState('');
-  const [messageList, setMessageList] = useState([]);
+  const [messageList, setMessageList] = useState([
+    {
+      content:
+        '哈囉各位同學，請問是你們主動想進行 Meta-Talk，還是老師需要你們進行 Meta-Talk 呢？',
+      groupId: groupId,
+      author: 'assistant',
+    },
+  ]);
   const [messageAlert, setMessageAlert] = useState('');
   const [messageAlertCheck, setMessageAlertCheck] = useState(false);
   const [alertMessage, setAlertMessage] = useState([
@@ -96,10 +103,12 @@ export const GroupChatBot = () => {
         console.log('NLP server response:', response.data);
         const messageData = {
           content: response.data[0].text,
-          groupId: data.groupId,
+          groupId: groupId,
           author: 'assistant',
         };
         setCheckGroupMessage(false);
+        socket.emit('sendMessage', messageData);
+        console.log('send message', messageData);
         setMessageList((prev) => [...prev, messageData]);
         setMessageListTemp({
           sender: groupId,
@@ -141,7 +150,7 @@ export const GroupChatBot = () => {
       setMessageList((prev) => [...prev, messageData]);
       setMessageListTemp((prev) => ({
         ...prev,
-        message: prev.message + '\n' + message,
+        message: prev.message + message + '\n',
       }));
       setCheckGroupMessage(true);
 
@@ -371,8 +380,14 @@ export const GroupChatBot = () => {
                         padding: '6px',
                       }}
                     >
-                      {message.content}
+                      {message.content.split('\n').map((line, index) => (
+                        <React.Fragment key={index}>
+                          {line}
+                          <br />
+                        </React.Fragment>
+                      ))}
                     </div>
+                    {message.author}
                   </ListItem>
                 ))}
               </List>
