@@ -40,6 +40,7 @@ export default function ActivityCard({ activity }) {
     const handleEnter = async (e) => {
         e.preventDefault();
         localStorage.setItem('activityId', activity.ActivityGroup.Activity.id);
+        localStorage.setItem('activityTitle', activity.ActivityGroup.Activity.title);
         navigate("/forum");
     };
 

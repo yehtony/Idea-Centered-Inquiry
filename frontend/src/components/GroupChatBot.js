@@ -31,6 +31,7 @@ export const GroupChatBot = () => {
   const groupId = localStorage.getItem('groupId');
   // const ws = io.connect(url.backendHost);
   const [message, setMessage] = useState('');
+  const activityTitle = localStorage.getItem('activityTitle');
   const [messageList, setMessageList] = useState([
     {
       content:
@@ -39,8 +40,8 @@ export const GroupChatBot = () => {
       author: 'assistant',
     },
   ]);
-  const [messageAlert, setMessageAlert] = useState('');
-  const [messageAlertCheck, setMessageAlertCheck] = useState(false);
+  const [messageAlert, setMessageAlert] = useState([]);
+  const [messageAlertCheck, setMessageAlertCheck] = useState(true);
   const [alertMessage, setAlertMessage] = useState([
     [
       '你提出的想法似乎含有「冒犯性言論『',
@@ -54,8 +55,11 @@ export const GroupChatBot = () => {
   ]);
   const [messageListTemp, setMessageListTemp] = useState({
     sender: groupId,
-    message: message,
+    message: activityTitle + '|',
   });
+  const [questionMessage, setQuestionMessage] = useState([
+    '哈囉各位同學，請問是你們主動想進行 Meta-Talk，還是老師需要你們進行 Meta-Talk 呢？',
+  ]);
   const [checkGroupMessage, setCheckGroupMessage] = useState(false);
   const [chatRoomOpen, setChatRoomOpen] = useState(false);
   const [data, setData] = useState({
@@ -114,6 +118,7 @@ export const GroupChatBot = () => {
           sender: groupId,
           message: '',
         });
+        setQuestionMessage([response.data[0].text]);
         return response.data;
       } catch (error) {
         console.error('Error sending message to NLP server:', error);
@@ -124,10 +129,12 @@ export const GroupChatBot = () => {
 
   // Check Personal Message
   const checkMessage = async () => {
-    console.log(message);
+    // console.log(messageList);
+    const messageqa = questionMessage.concat(message);
+    console.log(messageqa);
     try {
       const response = await axios.post('http://127.0.0.1:8000/message/check', {
-        message: message,
+        message: messageqa,
       });
       console.log('NLP server response:', response.data);
       return response.data;
@@ -140,59 +147,56 @@ export const GroupChatBot = () => {
   // Send Personal Message
   const sendMessage = async () => {
     if (message !== '') {
-      const messageData = {
-        content: message,
-        groupId: data.groupId,
-        author: data.author,
-      };
-      socket.emit('sendMessage', messageData);
-      console.log('send message', messageData);
-      setMessageList((prev) => [...prev, messageData]);
-      setMessageListTemp((prev) => ({
-        ...prev,
-        message: prev.message + message + '\n',
-      }));
-      setCheckGroupMessage(true);
+      // const messageData = {
+      //   content: message,
+      //   groupId: data.groupId,
+      //   author: data.author,
+      // };
+      // socket.emit('sendMessage', messageData);
+      // console.log('send message', messageData);
+      // setMessageList((prev) => [...prev, messageData]);
+      // setMessageListTemp((prev) => ({
+      //   ...prev,
+      //   message: prev.message + message + '\n',
+      // }));
+      // setCheckGroupMessage(true);
+      // setQuestionMessage((prev) => [...prev, message]);
+      // console.log(questionMessage);
+      // console.log(questionMessage)
+      const checkMessageResult = await checkMessage();
+      const isAllTrue = checkMessageResult.every(
+        (item) => item.result === false
+      );
+      if (isAllTrue) {
+        const messageData = {
+          content: message,
+          groupId: data.groupId,
+          author: data.author,
+        };
+        socket.emit('sendMessage', messageData);
+        console.log('send message', messageData);
+        setMessageList((prev) => [...prev, messageData]);
+        setMessageListTemp((prev) => ({
+          ...prev,
+          message: prev.message + '\n' + message,
+        }));
+        // setMessageAlertCheck(true);
+        setCheckGroupMessage(true);
+      } else {
+        checkMessageResult.forEach((item, index) => {
+          if (item.result) {
+            setMessageAlert((prev) => [
+              ...prev,
+              alertMessage[index][0] + item.content + alertMessage[index][1],
+            ]);
+            console.log(messageAlert);
+          }
+        });
 
-      // const checkMessageResult = await checkMessage();
-      // const isAllTrue = checkMessageResult.every(
-      //   (item) => item.result === false
-      // );
-      // if (isAllTrue) {
-      //   const messageData = {
-      //     content: message,
-      //     groupId: data.groupId,
-      //     author: data.author,
-      //   };
-      //   socket.emit("sendMessage", messageData);
-      //   console.log("send message", messageData);
-      //   setMessageList((prev) => [...prev, messageData]);
-      //   setMessageListTemp((prev) => ({
-      //     ...prev,
-      //     message: prev.message + "\n" + message,
-      //   }));
-      //   setCheckGroupMessage(true);
-      // } else {
-      //   const messageToAlert = await checkMessageResult.reduce(
-      //     (prev, item, index) => {
-      //       if (item.result) {
-      //         return (
-      //           prev +
-      //           alertMessage[index][0] +
-      //           item.content +
-      //           alertMessage[index][1] +
-      //           "\n"
-      //         ); // 如果 result 為 true，則將 content 添加到 messageAlert 中
-      //       } else {
-      //         return prev; // 如果 result 為 false，則返回原來的值
-      //       }
-      //     },
-      //     ""
-      //   );
-      //   setCheckGroupMessage(false);
-      //   setMessageAlert(messageToAlert);
-      //   console.log("send message", messageAlert);
-      // }
+        setMessageAlertCheck(false);
+        // setMessageAlert(messageToAlert);
+        console.log('send message', messageAlert);
+      }
 
       /*
       // if ((await checkMessage()) === true) {
@@ -236,7 +240,8 @@ export const GroupChatBot = () => {
 
   const doubleCheckYes = () => {
     setCheckGroupMessage(true);
-    setMessageAlert('');
+    setMessageAlertCheck(true);
+    setMessageAlert([]);
     const messageData = {
       content: message,
       groupId: data.groupId,
@@ -252,12 +257,13 @@ export const GroupChatBot = () => {
   };
   const doubleCheckNo = () => {
     // setCheckGroupMessage(true);
-    setMessageAlert('');
+    setMessageAlertCheck(true);
+    setMessageAlert([]);
   };
   return (
     <>
       <Dialog
-        open={messageAlertCheck === true}
+        open={messageAlertCheck === false}
         // onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -266,9 +272,10 @@ export const GroupChatBot = () => {
           {'是否要提出此想法？'}
         </DialogTitle>
         <DialogContent>
-          {messageAlert.split('\n').map((line, index) => (
+          {messageAlert.map((content, index) => (
             <React.Fragment key={index}>
-              {line}
+              {index + 1}.&nbsp;&nbsp;&nbsp;
+              {content}
               <br />
             </React.Fragment>
           ))}
