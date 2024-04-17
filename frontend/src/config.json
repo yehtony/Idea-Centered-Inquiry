@@ -1,53 +1,53 @@
 [
-    {
-        "registerUrl": "api/users/signup"
-    },
-    {
-        "loginUrl": "api/users/login"
-    },
-    {
-        "createActivity": "api/activities/create"
-    },
-    {
-        "myActivityList": "api/activities/myActivity"
-    },
-    {
-        "myJoinedActivityList": "api/activities/myJoined"
-    },
-    {
-        "joinActivity": "api/groups"
-    },
-    {
-        "enterActivity": "api/activities"
-    },
-    {
-        "createNode": "api/nodes/create"
-    },
-    {
-        "getNode": "api/nodes/all"
-    },
-    {
-        "createEdge": "api/edges/create"
-    },
-    {
-        "getEdge": "api/edges/all"
-    },
-    {
-        "getOneNode": "api/nodes"
-    },
-    {
-        "getMyGroup": "api/groups"
-    },
-    {
-        "MyCreatedActivity": "api/activities/myActivity"
-    },
-    {
-        "creatGroup": "api/activities/createGroups"
-    },
-    {
-        "findAllGroup": "api/activities/"
-    },
-    {
-        "EnterDifferentGroup": "api/groups/teacher/"
-    }
+  {
+    "registerUrl": "api/users/signup"
+  },
+  {
+    "loginUrl": "api/users/login"
+  },
+  {
+    "createActivity": "api/activities/create"
+  },
+  {
+    "myActivityList": "api/activities/myActivity"
+  },
+  {
+    "myJoinedActivityList": "api/activities/myJoined"
+  },
+  {
+    "joinActivity": "api/groups"
+  },
+  {
+    "enterActivity": "api/activities"
+  },
+  {
+    "createNode": "api/nodes/create"
+  },
+  {
+    "getNode": "api/nodes/all"
+  },
+  {
+    "createEdge": "api/edges/create"
+  },
+  {
+    "getEdge": "api/edges/all"
+  },
+  {
+    "getOneNode": "api/nodes"
+  },
+  {
+    "getMyGroup": "api/groups"
+  },
+  {
+    "MyCreatedActivity": "api/activities/myActivity"
+  },
+  {
+    "creatGroup": "api/activities/createGroups"
+  },
+  {
+    "findAllGroup": "api/activities/"
+  },
+  {
+    "EnterDifferentGroup": "api/groups/teacher/"
+  }
 ]
