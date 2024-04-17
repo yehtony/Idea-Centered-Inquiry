@@ -3,6 +3,7 @@ import axios from "axios";
 import {
   Tooltip,
   Button,
+  ButtonGroup,
   IconButton,
   Badge,
   Box,
@@ -69,32 +70,7 @@ export const GroupChatBot = ({ activityData }) => {
     groupId: groupId,
   });
   const [sendActivityTitle, setSendActivityTitle] = useState(false);
-  // const sendMessageToServer = async (content) => {
-  //   try {
-  //     const response = await axios.post(
-  //       'http://127.0.0.1:8000/react/chatbot/sendMessage',
-  //       {
-  //         userId: userId,
-  //         content: content,
-  //       }
-  //     );
-  //     console.log('Server response:', response.data);
-  //   } catch (error) {
-  //     console.error('Error sending message to server:', error);
-  //   }
-  // };
-
-  //   useEffect(() => {
-  //     const socket = io.connect('http://127.0.0.1:8000');
-  //     socket.on('message', (message) => {
-  //       console.log('Received message from server:', message);
-  //       setMessageLog([...messageLog, message]);
-  //     });
-
-  //     return () => {
-  //       socket.disconnect();
-  //     };
-  //   }, [messageLog]);
+  const [scafflod, setScaffold] = useState(["我們摘要出的想法："]);
 
   // Group Message
   const sendGroupMessage = async () => {
@@ -155,22 +131,6 @@ export const GroupChatBot = ({ activityData }) => {
   // Send Personal Message
   const sendMessage = async () => {
     if (message !== "") {
-      // const messageData = {
-      //   content: message,
-      //   groupId: data.groupId,
-      //   author: data.author,
-      // };
-      // socket.emit('sendMessage', messageData);
-      // console.log('send message', messageData);
-      // setMessageList((prev) => [...prev, messageData]);
-      // setMessageListTemp((prev) => ({
-      //   ...prev,
-      //   message: prev.message + message + '\n',
-      // }));
-      // setCheckGroupMessage(true);
-      // setQuestionMessage((prev) => [...prev, message]);
-      // console.log(questionMessage);
-      // console.log(questionMessage)
       const checkMessageResult = await checkMessage();
       const isAllTrue = checkMessageResult.every(
         (item) => item.result === false
@@ -205,31 +165,24 @@ export const GroupChatBot = ({ activityData }) => {
         // setMessageAlert(messageToAlert);
         console.log("send message", messageAlert);
       }
-
-      /*
-      // if ((await checkMessage()) === true) {
-      //   const messageData = {
-      //     content: message,
-      //     groupId: data.groupId,
-      //     author: data.author,
-      //   };
-      //   socket.emit("sendMessage", messageData);
-      //   console.log("send message", messageData);
-      //   setMessageList((prev) => [...prev, messageData]);
-      //   setMessageListTemp((prev) => ({
-      //     ...prev,
-      //     message: prev.message + "\n" + message,
-      //   }));
-      //   setCheckGroupMessage(true);
-      // }
-      */
     }
   };
 
   useEffect(() => {
     function receive_message(data) {
       setMessageList((prev) => [...prev, data]);
-      console.log(data);
+      if (data.author !== "assistant") {
+        setMessageListTemp((prev) => ({
+          ...prev,
+          message: prev.message + "\n" + data.content,
+        }));
+      } else {
+        setMessageListTemp({
+          sender: groupId,
+          message: "",
+        });
+      }
+      setCheckGroupMessage(true);
     }
     if (chatRoomOpen === true) {
       socket.emit("joinRoom", data.groupId);
@@ -245,7 +198,7 @@ export const GroupChatBot = ({ activityData }) => {
   // const handleClickOpen = () => {
   //   setCheckGroupMessage(true);
   // };
-
+  const handleScaffoldClick = (e) => {};
   const doubleCheckYes = () => {
     setCheckGroupMessage(true);
     setMessageAlertCheck(true);
@@ -339,7 +292,7 @@ export const GroupChatBot = ({ activityData }) => {
               </Button>
               <List
                 sx={{
-                  height: "calc(100% - 49px)", // 設置高度
+                  height: "calc(100% - 100px)", // 設置高度
                   overflowY: "auto", // 設置垂直滾動條
                   /* 滾動條樣式開始 */
                   "&::-webkit-scrollbar": {
@@ -406,6 +359,20 @@ export const GroupChatBot = ({ activityData }) => {
                   </ListItem>
                 ))}
               </List>
+              <ButtonGroup
+                orientation="vertical"
+                aria-label="vertical button group"
+                style={{ marginTop: "8px" }}
+              >
+                {scafflod.map((value, index) => (
+                  <Button
+                    key={index}
+                    onClick={() => handleScaffoldClick(value)}
+                  >
+                    {value}
+                  </Button>
+                ))}
+              </ButtonGroup>
             </Box>
             <Box
               sx={{
