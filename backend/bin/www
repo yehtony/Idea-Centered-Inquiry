@@ -98,7 +98,8 @@ io.on('connection', (socket) => {
       author: author,
       groupId: groupId,
     });
-    socket.to(groupId).emit('receiveMessage', creatMessage);
+    creatMessage;
+    socket.to(groupId).emit('receiveMessage', data);
   });
   /* add by xuan */
 });
