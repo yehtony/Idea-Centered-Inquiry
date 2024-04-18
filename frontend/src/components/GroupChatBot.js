@@ -23,11 +23,35 @@ import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import TaskAltRoundedIcon from '@mui/icons-material/TaskAltRounded';
 // import io from 'socket.io-client';
-// import url from '../url.json';
+import url from '../url.json';
+import config from '../config.json';
 import { socket } from '../utils/Socket';
 import ActivityCard from './ActivityCard';
 
 export const GroupChatBot = ({ activityData }) => {
+  const [nodeData, setNodeData] = useState();
+  const getNodes = async () => {
+    try {
+      const fetchData = await axios.get(
+        `${url.backendHost + config[8].getNode}/${localStorage.getItem(
+          'groupId'
+        )}`,
+        {
+          headers: {
+            authorization: 'Bearer JWT Token',
+          },
+        }
+      );
+      const nodeData = fetchData.data[0].Nodes.map(
+        (node) => `${node.title}:${node.content}`
+      ).join('\n');
+      console.log(nodeData);
+      setNodeData(await nodeData);
+    } catch (error) {
+      console.error('Error fetching nodes:', error.message);
+    }
+  };
+
   // console.log(activityData.title);
   const userId = localStorage.getItem('userId');
   const author = localStorage.getItem('name');
@@ -77,19 +101,29 @@ export const GroupChatBot = ({ activityData }) => {
   // Group Message
   const sendGroupMessage = async () => {
     console.log(messageListTemp);
+    var messageTitleNode;
     if (sendActivityTitle === false) {
-      setMessageListTemp((prev) => ({
-        ...prev,
-        message: prev.message + '|' + activityData.title,
-      }));
+      // setMessageListTemp((prev) => ({
+      //   ...prev,
+      //   message: prev.message + '|' + activityData.title + '|' + nodeData,
+      // }));
+      messageTitleNode = {
+        sender: messageListTemp.sender,
+        message:
+          messageListTemp.message + '|' + activityData.title + '|' + nodeData,
+      };
       setSendActivityTitle(true);
+    } else {
+      messageTitleNode = messageListTemp;
     }
+    console.log(messageTitleNode);
     if (checkGroupMessage === true) {
       try {
         const response = await axios.post(
           'http://127.0.0.1:5005/webhooks/rest/webhook',
-          messageListTemp
+          messageTitleNode
         );
+
         console.log('NLP server response:', response.data);
         var messageData;
         if (response.data[0].buttons && response.data[0].buttons.length > 0) {
@@ -187,6 +221,7 @@ export const GroupChatBot = ({ activityData }) => {
   };
 
   useEffect(() => {
+    getNodes();
     if (buttonGroupRef.current) {
       const height = buttonGroupRef.current.clientHeight;
       setButtonGroupHeight(height);
