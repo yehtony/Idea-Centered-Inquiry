@@ -29,7 +29,8 @@ import { socket } from '../utils/Socket';
 import ActivityCard from './ActivityCard';
 
 export const GroupChatBot = ({ activityData }) => {
-  const [nodeData, setNodeData] = useState();
+  const [nodeData, setNodeData] = useState([]);
+  const [summary, setSummary] = useState();
   const getNodes = async () => {
     try {
       const fetchData = await axios.get(
@@ -42,11 +43,29 @@ export const GroupChatBot = ({ activityData }) => {
           },
         }
       );
-      const nodeData = fetchData.data[0].Nodes.map(
+      // const nodeData = fetchData.data[0].Nodes.map(
+      //   (node) => `${node.title}:${node.content}`
+      // ).join('\n');
+      const nodeDataList = fetchData.data[0].Nodes.map(
         (node) => `${node.title}:${node.content}`
-      ).join('\n');
+      );
+      // console.log(nodeData);
+      setNodeData(await nodeDataList);
       console.log(nodeData);
-      setNodeData(await nodeData);
+      try {
+        const response = await axios.post(
+          'http://127.0.0.1:8000/nlp/idea/summarize',
+          {
+            message: nodeData,
+          }
+        );
+        console.log('NLP server response:', response.data);
+        setSummary(response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Error sending message to NLP server:', error);
+        return false;
+      }
     } catch (error) {
       console.error('Error fetching nodes:', error.message);
     }
@@ -110,7 +129,12 @@ export const GroupChatBot = ({ activityData }) => {
       messageTitleNode = {
         sender: messageListTemp.sender,
         message:
-          messageListTemp.message + '|' + activityData.title + '|' + nodeData,
+          messageListTemp.message +
+          '|' +
+          activityData.title +
+          '|(' +
+          summary +
+          ')',
       };
       setSendActivityTitle(true);
     } else {
@@ -169,9 +193,12 @@ export const GroupChatBot = ({ activityData }) => {
     const messageqa = questionMessage.concat(message);
     console.log(messageqa);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/message/check', {
-        message: messageqa,
-      });
+      const response = await axios.post(
+        'http://127.0.0.1:8000/nlp/message/check',
+        {
+          message: messageqa,
+        }
+      );
       console.log('NLP server response:', response.data);
       return response.data;
     } catch (error) {
@@ -198,7 +225,7 @@ export const GroupChatBot = ({ activityData }) => {
         setMessageList((prev) => [...prev, messageData]);
         setMessageListTemp((prev) => ({
           ...prev,
-          message: prev.message + '\n' + message,
+          message: prev.message + message,
         }));
         // setMessageAlertCheck(true);
         setCheckGroupMessage(true);
