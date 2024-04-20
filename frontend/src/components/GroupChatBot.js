@@ -129,12 +129,7 @@ export const GroupChatBot = ({ activityData }) => {
       messageTitleNode = {
         sender: messageListTemp.sender,
         message:
-          messageListTemp.message +
-          '|' +
-          activityData.title +
-          '|(' +
-          summary +
-          ')',
+          messageListTemp.message + '//' + activityData.title + '//' + summary,
       };
       setSendActivityTitle(true);
     } else {
@@ -184,6 +179,9 @@ export const GroupChatBot = ({ activityData }) => {
         console.error('Error sending message to NLP server:', error);
         return false;
       }
+    }
+    else{
+      
     }
   };
 
@@ -448,12 +446,14 @@ export const GroupChatBot = ({ activityData }) => {
                         padding: '6px',
                       }}
                     >
-                      {message.content.split('\n').map((line, index) => (
-                        <React.Fragment key={index}>
-                          {line}
-                          <br />
-                        </React.Fragment>
-                      ))}
+                      {message.content
+                        .split(/(?:\n|\\n)/)
+                        .map((line, index) => (
+                          <React.Fragment key={index}>
+                            {line}
+                            <br />
+                          </React.Fragment>
+                        ))}
                     </div>
                     {message.author}
                   </ListItem>
